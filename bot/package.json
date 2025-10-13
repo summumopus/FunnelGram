@@ -1,0 +1,23 @@
+{
+    "name": "funnelgram-bot",
+    "version": "1.0.0",
+    "description": "Telegram-native funnel builder bot",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js",
+        "dev": "nodemon index.js",
+        "deploy": "node deploy-commands.js"
+    },
+    "dependencies": {
+        "telegraf": "^4.16.3",
+        "@supabase/supabase-js": "^2.39.7",
+        "dotenv": "^16.4.5",
+        "node-cron": "^3.0.3"
+    },
+    "devDependencies": {
+        "nodemon": "^3.0.2"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    }
+}

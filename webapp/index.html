@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FunnelGram - Telegram Funnel Builder</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <h1>🚀 FunnelGram</h1>
+                <p class="tagline">Build Marketing Funnels Inside Telegram</p>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="hero-section">
+                <div class="hero-content">
+                    <h2>Create, Deploy & Profit</h2>
+                    <p class="hero-description">
+                        Build high-converting marketing funnels 100% inside Telegram.
+                        No coding required. Start in 60 seconds.
+                    </p>
+
+                    <div class="cta-buttons">
+                        <button class="btn btn-primary" onclick="openBot()">
+                            🤖 Open Bot & Start Building
+                        </button>
+                        <button class="btn btn-secondary" onclick="showDemo()">
+                            🎬 See Demo
+                        </button>
+                    </div>
+
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">⚡</div>
+                            <h3>Lightning Fast</h3>
+                            <p>Create funnels in minutes, not hours</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">📱</div>
+                            <h3>Native Experience</h3>
+                            <p>100% inside Telegram, no app switching</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">📊</div>
+                            <h3>Real-time Analytics</h3>
+                            <p>Track conversions and optimize performance</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="demo-section" id="demoSection" style="display: none;">
+                <h3>🎯 How It Works</h3>
+                <div class="demo-steps">
+                    <div class="demo-step">
+                        <span class="step-number">1</span>
+                        <p>Use /create in our bot to build your funnel</p>
+                    </div>
+                    <div class="demo-step">
+                        <span class="step-number">2</span>
+                        <p>Customize landing pages and forms</p>
+                    </div>
+                    <div class="demo-step">
+                        <span class="step-number">3</span>
+                        <p>Share your funnel link anywhere</p>
+                    </div>
+                    <div class="demo-step">
+                        <span class="step-number">4</span>
+                        <p>Collect leads & track analytics</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            <p>Powered by FunnelGram • Built for Telegram</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function openBot() {
+            const tg = window.Telegram.WebApp;
+            tg.openTelegramLink('https://t.me/YourFunnelGramBot');
+        }
+
+        function showDemo() {
+            const demoSection = document.getElementById('demoSection');
+            demoSection.style.display = demoSection.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Initialize Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+        tg.enableClosingConfirmation();
+    </script>
+</body>
+
+</html>
