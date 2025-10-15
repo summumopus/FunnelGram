@@ -1,0 +1,40 @@
+{
+    "funnels": [
+        {
+            "id": 1,
+            "name": "Lead Magnet Funnel",
+            "type": "Lead Magnet",
+            "status": "Published",
+            "leads": 342,
+            "conversions": 89,
+            "revenue": 0,
+            "createdAt": "2024-01-15"
+        },
+        {
+            "id": 2,
+            "name": "Product Launch",
+            "type": "Product Sales",
+            "status": "Published",
+            "leads": 156,
+            "conversions": 23,
+            "revenue": 2847,
+            "createdAt": "2024-01-10"
+        },
+        {
+            "id": 3,
+            "name": "Webinar Registration",
+            "type": "Webinar",
+            "status": "Draft",
+            "leads": 0,
+            "conversions": 0,
+            "revenue": 0,
+            "createdAt": "2024-01-20"
+        }
+    ],
+    "analytics": {
+        "totalLeads": 498,
+        "totalConversions": 112,
+        "totalRevenue": 2847,
+        "activeFunnels": 2
+    }
+}

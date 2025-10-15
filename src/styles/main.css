@@ -1,0 +1,189 @@
+:root {
+    /* Light theme defaults */
+    --tg-theme-bg-color: #ffffff;
+    --tg-theme-text-color: #000000;
+    --tg-theme-hint-color: #999999;
+    --tg-theme-link-color: #2481cc;
+    --tg-theme-button-color: #2481cc;
+    --tg-theme-button-text-color: #ffffff;
+    --tg-theme-secondary-bg-color: #f4f4f5;
+    --tg-theme-border-color: #e5e7eb;
+}
+
+[data-theme="dark"] {
+    --tg-theme-bg-color: #1c1c1e;
+    --tg-theme-text-color: #ffffff;
+    --tg-theme-hint-color: #98989e;
+    --tg-theme-link-color: #50a8eb;
+    --tg-theme-button-color: #50a8eb;
+    --tg-theme-button-text-color: #ffffff;
+    --tg-theme-secondary-bg-color: #2c2c2e;
+    --tg-theme-border-color: #38383a;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: var(--tg-theme-secondary-bg-color, #f4f4f5);
+    color: var(--tg-theme-text-color, #000000);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+#root {
+    min-height: 100vh;
+    padding-bottom: 60px;
+}
+
+/* Utility classes for Telegram theme colors */
+.bg-tg-bg-color {
+    background-color: var(--tg-theme-bg-color);
+}
+
+.bg-tg-secondary-bg-color {
+    background-color: var(--tg-theme-secondary-bg-color);
+}
+
+.bg-tg-button-color {
+    background-color: var(--tg-theme-button-color);
+}
+
+.text-tg-text-color {
+    color: var(--tg-theme-text-color);
+}
+
+.text-tg-hint-color {
+    color: var(--tg-theme-hint-color);
+}
+
+.text-tg-button-text-color {
+    color: var(--tg-theme-button-text-color);
+}
+
+.border-tg-border-color {
+    border-color: var(--tg-theme-border-color);
+}
+
+/* Component Styles */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.metrics-card {
+    background: var(--tg-theme-bg-color);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--tg-theme-border-color);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.funnel-card {
+    background: var(--tg-theme-bg-color);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--tg-theme-border-color);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 12px;
+}
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--tg-theme-bg-color);
+    border-top: 1px solid var(--tg-theme-border-color);
+    padding: 12px 16px;
+}
+
+.nav-grid {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.nav-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.nav-button.active {
+    color: var(--tg-theme-button-color);
+}
+
+.nav-button:not(.active) {
+    color: var(--tg-theme-hint-color);
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: end;
+    z-index: 50;
+}
+
+.modal-content {
+    background: var(--tg-theme-bg-color);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.btn-primary {
+    background: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-primary:active {
+    opacity: 0.8;
+}
+
+.btn-secondary {
+    background: var(--tg-theme-secondary-bg-color);
+    color: var(--tg-theme-text-color);
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-secondary:active {
+    opacity: 0.8;
+}
