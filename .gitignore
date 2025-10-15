@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+.env.*
+/.vercel
+/.cache
+npm-debug.log
+yarn-error.log

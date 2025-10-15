@@ -39,6 +39,17 @@ body {
     padding-bottom: 60px;
 }
 
+/* Safe area for Telegram WebApp (iOS notch / Android gestures) */
+:root {
+    --safe-area-inset-top: env(safe-area-inset-top, 0px);
+    --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+body {
+    padding-top: var(--safe-area-inset-top);
+    padding-bottom: calc(var(--safe-area-inset-bottom) + 60px);
+}
+
 /* Utility classes for Telegram theme colors */
 .bg-tg-bg-color {
     background-color: var(--tg-theme-bg-color);

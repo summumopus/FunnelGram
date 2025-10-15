@@ -23,8 +23,11 @@ export const useTelegramContext = () => {
 export const TelegramProvider = ({ children }) => {
     const telegramData = useTelegram();
 
+    // Provide initData as a string when available so API calls can send it for verification
+    const initData = typeof window !== 'undefined' ? window.Telegram?.WebApp?.initData || '' : '';
+
     return (
-        <TelegramContext.Provider value={telegramData}>
+        <TelegramContext.Provider value={{ ...telegramData, initData }}>
             {children}
         </TelegramContext.Provider>
     );

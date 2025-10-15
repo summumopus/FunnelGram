@@ -1,15 +1,21 @@
-import { createClient } from '@supabase/supabase-js';
+import { createServerSupabase, verifyInitData } from '../auth/verify.js';
 
-const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY
-);
+const supabase = createServerSupabase();
 
 export default async function handler(req, res) {
     const { userId } = req.query;
 
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    // Optionally verify Telegram initData passed in header for extra security
+    const initData = req.headers['x-tg-initdata'] || '';
+    const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+    const verified = verifyInitData(initData, BOT_TOKEN);
+    const isDevFallback = !verified && process.env.NODE_ENV !== 'production';
+    if (!verified && !isDevFallback) {
+        return res.status(401).json({ error: 'Unauthorized: missing or invalid Telegram initData' });
     }
 
     try {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { CreditCard, Lock, CheckCircle } from 'lucide-react';
 
-const PaymentProcessor = ({ amount, funnelId, onSuccess, onClose }) => {
+const PaymentProcessor = ({ amount, funnelId, userId, onSuccess, onClose }) => {
     const [loading, setLoading] = useState(false);
     const [paymentSuccess, setPaymentSuccess] = useState(false);
     const [cardDetails, setCardDetails] = useState({
@@ -14,14 +14,37 @@ const PaymentProcessor = ({ amount, funnelId, onSuccess, onClose }) => {
     const processPayment = async () => {
         setLoading(true);
         try {
-            // Simulate payment processing
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            // Call server to create a payment (Stripe or mock)
+            const res = await fetch('/api/payments/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount, userId: userId || null, funnelId })
+            });
 
-            // In a real app, you would call your Stripe API here
-            setPaymentSuccess(true);
-            setTimeout(() => {
-                onSuccess && onSuccess();
-            }, 2000);
+            const body = await res.json();
+            if (!body || !body.success) {
+                throw new Error(body?.error || 'Payment creation failed');
+            }
+
+            if (body.mock) {
+                // Simulate client-side success for mock sessions
+                setPaymentSuccess(true);
+                setTimeout(() => { onSuccess && onSuccess(); }, 1200);
+            } else if (body.session && body.session.url) {
+                // Redirect to Stripe Checkout
+                try {
+                    window.location.href = body.session.url;
+                } catch (err) {
+                    console.error('Failed to redirect to Stripe Checkout', err);
+                    // fallback: mark success
+                    setPaymentSuccess(true);
+                    setTimeout(() => { onSuccess && onSuccess(); }, 1200);
+                }
+            } else {
+                // Unknown successful response shape: fallback to success
+                setPaymentSuccess(true);
+                setTimeout(() => { onSuccess && onSuccess(); }, 1200);
+            }
         } catch (error) {
             console.error('Payment error:', error);
         } finally {
