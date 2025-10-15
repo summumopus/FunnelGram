@@ -1,12 +1,12 @@
 import { createServerSupabase, verifyInitData } from './verify.js';
 
-// Use the shared server supabase helper which returns a safe stub when envs are missing.
-const supabase = createServerSupabase();
-
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
+
+    const { createServerSupabase } = await import('./verify.js');
+    const supabase = createServerSupabase();
 
     try {
         const { initData } = req.body || {};

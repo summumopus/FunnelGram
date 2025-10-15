@@ -1,9 +1,8 @@
-import { createServerSupabase } from '../auth/verify.js';
-
-const supabase = createServerSupabase();
-
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+    const { createServerSupabase } = await import('../auth/verify.js');
+    const supabase = createServerSupabase();
 
     const { amount, userId, funnelId } = req.body || {};
     if (!amount || !userId) return res.status(400).json({ error: 'Missing amount or userId' });

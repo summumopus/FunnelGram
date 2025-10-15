@@ -1,18 +1,16 @@
-import { createServerSupabase } from '../auth/verify.js';
-
-const supabase = createServerSupabase();
-
 export default async function handler(req, res) {
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        // If Supabase isn't configured, the stub will throw when used. Detect this early
-        // and return a 503 with a helpful message so the function doesn't crash.
+        // If Supabase isn't configured, return 503 so the function doesn't crash.
         if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
             return res.status(503).json({ error: 'Service unavailable: supabase not configured' });
         }
+
+        const { createServerSupabase } = await import('../auth/verify.js');
+        const supabase = createServerSupabase();
 
         const { data: templates, error } = await supabase
             .from('templates')

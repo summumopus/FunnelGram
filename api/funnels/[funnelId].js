@@ -1,7 +1,3 @@
-import { createServerSupabase, verifyInitData } from '../auth/verify.js';
-
-const supabase = createServerSupabase();
-
 export default async function handler(req, res) {
     const { funnelId } = req.query;
 
@@ -9,6 +5,9 @@ export default async function handler(req, res) {
     if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
         return res.status(503).json({ error: 'Service unavailable: supabase not configured' });
     }
+
+    const { createServerSupabase, verifyInitData } = await import('../auth/verify.js');
+    const supabase = createServerSupabase();
 
     // Accept initData for server-side verification
     const initData = req.headers['x-tg-initdata'] || req.body?.initData || '';
