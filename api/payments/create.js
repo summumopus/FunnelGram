@@ -47,19 +47,23 @@ export default async function handler(req, res) {
             }
         });
 
-        // Optionally record a pending payment in Supabase
+        // Optionally record a pending payment in Supabase if configured
         try {
-            await supabase.from('payments').insert([
-                {
-                    stripe_id: session.id,
-                    user_id: userId,
-                    funnel_id: funnelId || null,
-                    amount: amount,
-                    currency: 'usd',
-                    status: 'created',
-                    created_at: new Date().toISOString()
-                }
-            ]);
+            if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY) {
+                await supabase.from('payments').insert([
+                    {
+                        stripe_id: session.id,
+                        user_id: userId,
+                        funnel_id: funnelId || null,
+                        amount: amount,
+                        currency: 'usd',
+                        status: 'created',
+                        created_at: new Date().toISOString()
+                    }
+                ]);
+            } else {
+                console.warn('Supabase not configured; skipping payment record insert');
+            }
         } catch (e) {
             console.warn('Failed to record payment in Supabase:', e.message || e);
         }

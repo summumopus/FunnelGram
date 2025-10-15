@@ -8,6 +8,12 @@ export default async function handler(req, res) {
     }
 
     try {
+        // If Supabase isn't configured, the stub will throw when used. Detect this early
+        // and return a 503 with a helpful message so the function doesn't crash.
+        if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
+            return res.status(503).json({ error: 'Service unavailable: supabase not configured' });
+        }
+
         const { data: templates, error } = await supabase
             .from('templates')
             .select('*')

@@ -1,5 +1,15 @@
 import crypto from 'crypto';
-import { createClient } from '@supabase/supabase-js';
+let createClient;
+try {
+    // Importing the supabase client may throw in some restricted runtimes
+    // so we lazily require it and guard against failures.
+    // Use dynamic import to keep bundlers happy.
+    // eslint-disable-next-line global-require
+    createClient = require('@supabase/supabase-js').createClient;
+} catch (e) {
+    console.warn('Warning: @supabase/supabase-js could not be loaded:', e && e.message);
+    createClient = null;
+}
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -8,8 +18,34 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
     console.warn('Supabase URL or service key missing. Server-side APIs will not function correctly without server credentials.');
 }
 
+// Create a lightweight stub that mimics the interface enough to avoid top-level crashes.
+function makeStubSupabase() {
+    const err = new Error('Supabase service not configured');
+    const thrower = () => ({
+        select: async () => { throw err; },
+        insert: async () => { throw err; },
+        update: async () => { throw err; },
+        delete: async () => { throw err; },
+        maybeSingle: async () => { throw err; },
+        single: async () => { throw err; },
+        order: () => ({ select: async () => { throw err; } }),
+        eq: () => ({ select: async () => { throw err; } }),
+        from: () => thrower()
+    });
+    return { from: () => thrower() };
+}
+
 export const createServerSupabase = () => {
-    return createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+    try {
+        if (!createClient) {
+            return makeStubSupabase();
+        }
+        if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) return makeStubSupabase();
+        return createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+    } catch (e) {
+        console.error('Failed to create Supabase client:', e && e.message);
+        return makeStubSupabase();
+    }
 };
 
 export function verifyInitData(initData, botToken) {

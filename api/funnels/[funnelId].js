@@ -5,6 +5,11 @@ const supabase = createServerSupabase();
 export default async function handler(req, res) {
     const { funnelId } = req.query;
 
+    // If Supabase isn't configured, return 503 so the function doesn't crash.
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
+        return res.status(503).json({ error: 'Service unavailable: supabase not configured' });
+    }
+
     // Accept initData for server-side verification
     const initData = req.headers['x-tg-initdata'] || req.body?.initData || '';
     const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
