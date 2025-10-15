@@ -1,4 +1,6 @@
-export default async function handler(req, res) {
+import { wrap } from '../../api/debugWrapper.js';
+
+async function handler(req, res) {
     const { userId } = req.query;
 
     // If Supabase isn't configured, return 503 so the function doesn't crash.
@@ -37,3 +39,5 @@ export default async function handler(req, res) {
         res.status(500).json({ error: error.message });
     }
 }
+
+export default wrap(handler);

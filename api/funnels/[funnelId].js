@@ -1,4 +1,6 @@
-export default async function handler(req, res) {
+import { wrap } from '../../api/debugWrapper.js';
+
+async function handler(req, res) {
     const { funnelId } = req.query;
 
     // If Supabase isn't configured, return 503 so the function doesn't crash.
@@ -123,3 +125,5 @@ export default async function handler(req, res) {
 
     return res.status(405).json({ error: 'Method not allowed' });
 }
+
+export default wrap(handler);
