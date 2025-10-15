@@ -1,54 +1,7 @@
-import crypto from 'crypto';
-import { createClient } from '@supabase/supabase-js';
+import { createServerSupabase, verifyInitData } from './verify.js';
 
-// Server-side Supabase client should use a service role / service key.
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
-    console.warn('Supabase URL or service key missing. api/auth/telegram will not function correctly without server credentials.');
-}
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
-
-/**
- * Verify Telegram WebApp initData using bot token.
- * Returns parsed params map on success, or null on failure.
- */
-function verifyInitData(initData, botToken) {
-    if (!initData || !botToken) return null;
-
-    // initData is a query-string like 'key1=value1&key2=value2...'
-    const params = new URLSearchParams(initData);
-    const hash = params.get('hash');
-    if (!hash) return null;
-
-    // Collect key=value for all params except 'hash'
-    const entries = [];
-    for (const [key, value] of params.entries()) {
-        if (key === 'hash') continue;
-        entries.push(`${key}=${value}`);
-    }
-
-    // Sort lexicographically by key (which is equivalent to sorting the strings)
-    entries.sort();
-    const dataCheckString = entries.join('\n');
-
-    // secret key is sha256 of bot token (binary)
-    const secret = crypto.createHash('sha256').update(botToken).digest();
-
-    // HMAC-SHA256 of data_check_string using secret
-    const hmac = crypto.createHmac('sha256', secret).update(dataCheckString).digest('hex');
-
-    // Compare in constant time
-    const valid = crypto.timingSafeEqual(Buffer.from(hmac, 'hex'), Buffer.from(hash, 'hex'));
-    if (!valid) return null;
-
-    // On success, return params as an object
-    const result = {};
-    for (const [k, v] of params.entries()) result[k] = v;
-    return result;
-}
+// Use the shared server supabase helper which returns a safe stub when envs are missing.
+const supabase = createServerSupabase();
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
