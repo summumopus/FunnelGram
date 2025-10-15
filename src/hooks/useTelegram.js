@@ -1,25 +1,22 @@
-import { useState, useEffect } from 'react';
+import React, { createContext, useContext } from 'react';
+import { useTelegram } from '../hooks/useTelegram';
 
-export const useTelegram = () => {
-    const [tg, setTg] = useState(null);
-    const [user, setUser] = useState(null);
+const TelegramContext = createContext({});
 
-    useEffect(() => {
-        const telegram = window.Telegram?.WebApp;
-        if (telegram) {
-            telegram.ready();
-            telegram.expand();
-            setTg(telegram);
-            setUser(telegram.initDataUnsafe?.user);
+export const useTelegramContext = () => {
+    const context = useContext(TelegramContext);
+    if (!context) {
+        throw new Error('useTelegramContext must be used within a TelegramProvider');
+    }
+    return context;
+};
 
-            // Set theme based on Telegram's theme
-            document.documentElement.setAttribute('data-theme', telegram.colorScheme);
-        }
-    }, []);
+export const TelegramProvider = ({ children }) => {
+    const telegramData = useTelegram();
 
-    return {
-        tg,
-        user,
-        themeParams: tg?.themeParams || {}
-    };
+    return (
+        <TelegramContext.Provider value={telegramData}>
+            {children}
+        </TelegramContext.Provider>
+    );
 };

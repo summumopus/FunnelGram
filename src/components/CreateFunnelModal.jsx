@@ -64,7 +64,7 @@ const CreateFunnelModal = ({ isOpen, onClose, onFunnelCreate }) => {
                                     textAlign: 'left',
                                     transition: 'border-color 0.2s'
                                 }}
-                                onMouseOver={(e) => e.target.style.borderColor = 'var(--tg-theme-button-color)'}
+                                onMouseEnter={(e) => e.target.style.borderColor = 'var(--tg-theme-button-color)'}
                                 onMouseOut={(e) => e.target.style.borderColor = 'var(--tg-theme-border-color)'}
                             >
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

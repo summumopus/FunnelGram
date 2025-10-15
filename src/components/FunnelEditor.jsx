@@ -140,8 +140,6 @@ const SortableElement = ({ element, onUpdate, onDelete }) => {
 };
 
 const FunnelEditor = ({ funnel, onSave, onExit }) => {
-    const [pages, setPages] = useState([]);
-    const [currentPageIndex, setCurrentPageIndex] = useState(0);
     const [elements, setElements] = useState([]);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -151,21 +149,22 @@ const FunnelEditor = ({ funnel, onSave, onExit }) => {
     );
 
     useEffect(() => {
-        loadFunnelPages();
-    }, [funnel]);
-
-    const loadFunnelPages = async () => {
-        try {
-            const response = await fetch(`/api/funnels/${funnel.id}/pages`);
-            const data = await response.json();
-            setPages(data.pages || []);
-            if (data.pages && data.pages.length > 0) {
-                setElements(data.pages[0].elements || []);
+        // Load initial elements or start with empty
+        setElements([
+            {
+                id: 'element-1',
+                type: 'heading',
+                content: 'Welcome to Your Funnel',
+                styles: { fontSize: '32px', textAlign: 'center' }
+            },
+            {
+                id: 'element-2',
+                type: 'paragraph',
+                content: 'Start building your amazing funnel by adding elements from the left panel.',
+                styles: { textAlign: 'center', color: '#666666' }
             }
-        } catch (error) {
-            console.error('Error loading pages:', error);
-        }
-    };
+        ]);
+    }, []);
 
     const handleDragEnd = (event) => {
         const { active, over } = event;
@@ -206,18 +205,8 @@ const FunnelEditor = ({ funnel, onSave, onExit }) => {
     const saveFunnel = async () => {
         setIsSaving(true);
         try {
-            const updatedPages = [...pages];
-            updatedPages[currentPageIndex] = {
-                ...updatedPages[currentPageIndex],
-                elements: elements
-            };
-
-            await fetch(`/api/funnels/${funnel.id}/pages`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pages: updatedPages })
-            });
-
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 1000));
             onSave && onSave();
         } catch (error) {
             console.error('Error saving funnel:', error);
@@ -225,8 +214,6 @@ const FunnelEditor = ({ funnel, onSave, onExit }) => {
             setIsSaving(false);
         }
     };
-
-    const currentPage = pages[currentPageIndex];
 
     return (
         <div style={{
@@ -246,10 +233,10 @@ const FunnelEditor = ({ funnel, onSave, onExit }) => {
             }}>
                 <div>
                     <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--tg-theme-text-color)' }}>
-                        {funnel.name}
+                        {funnel?.name || 'Funnel Editor'}
                     </h2>
                     <p style={{ fontSize: '12px', color: 'var(--tg-theme-hint-color)' }}>
-                        {currentPage?.title || 'Untitled Page'}
+                        Drag and drop to build your page
                     </p>
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>

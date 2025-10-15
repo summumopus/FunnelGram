@@ -1,7 +1,11 @@
-// ... (keep all the previous imports)
-import FunnelEditor from './components/FunnelEditor';
+import React, { useState, useEffect } from 'react';
+import { BarChart3, Zap, Settings, PlusCircle, Users, TrendingUp, DollarSign, CreditCard } from 'lucide-react';
+import { TelegramProvider, useTelegramContext } from './context/TelegramContext';
+import FunnelList from './components/FunnelList';
+import CreateFunnelModal from './components/CreateFunnelModal';
+import MetricsCard from './components/MetricsCard';
 import TemplateGallery from './components/TemplateGallery';
-import PaymentProcessor from './components/PaymentProcessor';
+import { useApi } from './hooks/useApi';
 
 const AppContent = () => {
     const { tg, user } = useTelegramContext();
@@ -10,10 +14,8 @@ const AppContent = () => {
     const [currentUser, setCurrentUser] = useState(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showTemplates, setShowTemplates] = useState(false);
-    const [editingFunnel, setEditingFunnel] = useState(null);
-    const [showPayment, setShowPayment] = useState(false);
 
-    const { loading, authWithTelegram, getFunnels, createFunnel, deleteFunnel } = useApi();
+    const { loading, authWithTelegram, getFunnels, createFunnel, deleteFunnel, getTemplates } = useApi();
 
     useEffect(() => {
         initializeApp();
@@ -21,73 +23,107 @@ const AppContent = () => {
 
     const initializeApp = async () => {
         if (tg) {
-            const initData = tg.initData;
+            // Get init data from Telegram
+            const initData = tg.initData || '';
+
+            // Authenticate user
             const authResult = await authWithTelegram(initData);
 
             if (authResult.success) {
                 setCurrentUser(authResult.user);
+                // Load user's funnels
                 const funnelsResult = await getFunnels(authResult.user.id);
                 setFunnels(funnelsResult.funnels || []);
+            } else {
+                // Demo mode - create a demo user
+                setCurrentUser({
+                    id: 'demo-user-123',
+                    first_name: 'Demo',
+                    last_name: 'User',
+                    telegram_username: 'demo_user'
+                });
             }
         }
     };
 
-    // ... (keep previous metrics calculations)
+    const totalLeads = funnels.reduce((sum, f) => sum + f.leads, 0);
+    const totalConversions = funnels.reduce((sum, f) => sum + f.conversions, 0);
+    const totalRevenue = funnels.reduce((sum, f) => sum + f.revenue, 0);
+    const activeFunnels = funnels.filter(f => f.status === 'published').length;
 
-    const handleCreateFromTemplate = async (template) => {
+    const handleCreateFunnel = async (newFunnel) => {
         if (!currentUser) return;
 
-        const funnelName = `${template.name} - ${new Date().toLocaleDateString()}`;
-
-        const result = await fetch('/api/funnels/from-template', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                userId: currentUser.id,
-                templateId: template.id,
-                funnelName: funnelName
-            })
-        }).then(r => r.json());
+        const result = await createFunnel({
+            userId: currentUser.id,
+            name: newFunnel.name,
+            funnelType: newFunnel.type
+        });
 
         if (result.success) {
             setFunnels(prev => [result.funnel, ...prev]);
-            setShowTemplates(false);
-            tg.showAlert(`Funnel "${funnelName}" created from template!`);
+            if (tg) tg.showAlert(`Funnel "${newFunnel.name}" created!`);
         }
     };
 
-    const handleEditFunnel = (funnel) => {
-        setEditingFunnel(funnel);
+    const handleDeleteFunnel = async (funnelToDelete) => {
+        if (tg) {
+            tg.showConfirm(`Delete ${funnelToDelete.name}?`, async (confirmed) => {
+                if (confirmed) {
+                    const result = await deleteFunnel(funnelToDelete.id);
+                    if (result.success) {
+                        setFunnels(prev => prev.filter(f => f.id !== funnelToDelete.id));
+                    }
+                }
+            });
+        }
     };
 
-    const handleSaveFunnel = () => {
-        tg.showAlert('Funnel saved successfully!');
-        setEditingFunnel(null);
-        // Reload funnels to get updated data
-        initializeApp();
-    };
+    const DashboardView = () => (
+        <div style={{ padding: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--tg-theme-text-color)' }}>Dashboard</h2>
+                {currentUser && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{
+                            width: '32px',
+                            height: '32px',
+                            background: 'var(--tg-theme-button-color)',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: 'var(--tg-theme-button-text-color)',
+                            fontSize: '14px',
+                            fontWeight: '500'
+                        }}>
+                            {currentUser.first_name?.[0] || 'U'}
+                        </div>
+                    </div>
+                )}
+            </div>
 
-    const handlePaymentSuccess = () => {
-        tg.showAlert('Welcome to FunnelGram Pro!');
-        setShowPayment(false);
-        // Update user to pro status
-        setCurrentUser(prev => ({ ...prev, subscription_tier: 'pro' }));
-    };
+            <div className="metrics-grid">
+                <MetricsCard icon={Users} title="Leads Collected" value={totalLeads} color="blue" />
+                <MetricsCard icon={TrendingUp} title="Conversions" value={totalConversions} color="green" />
+                <MetricsCard icon={DollarSign} title="Revenue" value={`$${totalRevenue}`} color="purple" />
+                <MetricsCard icon={Zap} title="Active Funnels" value={activeFunnels} subtitle={`of ${funnels.length}`} color="orange" />
+            </div>
 
-    // If editing funnel, show editor
-    if (editingFunnel) {
-        return (
-            <FunnelEditor
-                funnel={editingFunnel}
-                onSave={handleSaveFunnel}
-                onExit={() => setEditingFunnel(null)}
-            />
-        );
-    }
+            <div className="metrics-card">
+                <h3 style={{ fontWeight: '600', color: 'var(--tg-theme-text-color)', marginBottom: '12px' }}>Your Funnels</h3>
+                <FunnelList
+                    funnels={funnels}
+                    onEdit={(funnel) => tg?.showAlert(`Edit ${funnel.name}`)}
+                    onPreview={(funnel) => tg?.showAlert(`Preview ${funnel.name}`)}
+                    onClone={(funnel) => tg?.showAlert(`Clone ${funnel.name}`)}
+                    onDelete={handleDeleteFunnel}
+                />
+            </div>
+        </div>
+    );
 
-    // ... (keep previous DashboardView, FunnelsView, SettingsView)
-
-    const EnhancedFunnelsView = () => (
+    const FunnelsView = () => (
         <div style={{ padding: '16px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--tg-theme-text-color)' }}>My Funnels</h2>
@@ -96,8 +132,7 @@ const AppContent = () => {
                         onClick={() => setShowTemplates(true)}
                         className="btn-primary"
                     >
-                        <Download size={16} />
-                        Templates
+                        Use Template
                     </button>
                     <button
                         onClick={() => setShowCreateModal(true)}
@@ -111,15 +146,15 @@ const AppContent = () => {
 
             <FunnelList
                 funnels={funnels}
-                onEdit={handleEditFunnel}
-                onPreview={(funnel) => tg.showAlert(`Preview: ${funnel.name}`)}
-                onClone={(funnel) => tg.showAlert(`Clone: ${funnel.name}`)}
+                onEdit={(funnel) => tg?.showAlert(`Edit ${funnel.name}`)}
+                onPreview={(funnel) => tg?.showAlert(`Preview ${funnel.name}`)}
+                onClone={(funnel) => tg?.showAlert(`Clone ${funnel.name}`)}
                 onDelete={handleDeleteFunnel}
             />
         </div>
     );
 
-    const EnhancedSettingsView = () => (
+    const SettingsView = () => (
         <div style={{ padding: '16px' }}>
             <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--tg-theme-text-color)', marginBottom: '16px' }}>Settings</h2>
 
@@ -130,42 +165,31 @@ const AppContent = () => {
                 <div style={{ paddingTop: '16px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                         <span style={{ fontSize: '14px', color: 'var(--tg-theme-hint-color)' }}>Plan</span>
-                        <span style={{
-                            color: currentUser?.subscription_tier === 'pro' ? '#10B981' : 'var(--tg-theme-button-color)',
-                            fontWeight: '500'
-                        }}>
-                            {currentUser?.subscription_tier === 'pro' ? 'Pro' : 'Free'}
-                        </span>
+                        <span style={{ color: 'var(--tg-theme-button-color)', fontWeight: '500' }}>Free</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                         <span style={{ fontSize: '14px', color: 'var(--tg-theme-hint-color)' }}>Funnels Used</span>
-                        <span style={{ color: 'var(--tg-theme-text-color)' }}>{funnels.length}/{
-                            currentUser?.subscription_tier === 'pro' ? 'Unlimited' : '3'
-                        }</span>
+                        <span style={{ color: 'var(--tg-theme-text-color)' }}>{funnels.length}/3</span>
                     </div>
 
-                    {currentUser?.subscription_tier !== 'pro' && (
-                        <button
-                            onClick={() => setShowPayment(true)}
-                            className="btn-primary"
-                            style={{ width: '100%' }}
-                        >
-                            <CreditCard size={16} />
-                            Upgrade to Pro - $29/month
-                        </button>
-                    )}
+                    <button
+                        onClick={() => tg?.showAlert('Upgrade to Pro - $29/month')}
+                        className="btn-primary"
+                        style={{ width: '100%' }}
+                    >
+                        <CreditCard size={16} />
+                        Upgrade to Pro
+                    </button>
                 </div>
             </div>
-
-            {/* ... rest of settings ... */}
         </div>
     );
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--tg-theme-secondary-bg-color)', paddingBottom: '80px' }}>
             {activeTab === 'dashboard' && <DashboardView />}
-            {activeTab === 'funnels' && <EnhancedFunnelsView />}
-            {activeTab === 'settings' && <EnhancedSettingsView />}
+            {activeTab === 'funnels' && <FunnelsView />}
+            {activeTab === 'settings' && <SettingsView />}
 
             <CreateFunnelModal
                 isOpen={showCreateModal}
@@ -175,17 +199,8 @@ const AppContent = () => {
 
             {showTemplates && (
                 <TemplateGallery
-                    onTemplateSelect={handleCreateFromTemplate}
+                    onTemplateSelect={handleCreateFunnel}
                     onClose={() => setShowTemplates(false)}
-                />
-            )}
-
-            {showPayment && (
-                <PaymentProcessor
-                    amount={29}
-                    funnelId={null}
-                    onSuccess={handlePaymentSuccess}
-                    onClose={() => setShowPayment(false)}
                 />
             )}
 
@@ -211,3 +226,13 @@ const AppContent = () => {
         </div>
     );
 };
+
+const App = () => {
+    return (
+        <TelegramProvider>
+            <AppContent />
+        </TelegramProvider>
+    );
+};
+
+export default App;

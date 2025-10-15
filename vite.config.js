@@ -6,7 +6,7 @@ export default defineConfig({
     server: {
         host: true
     },
-    define: {
-        'process.env': {}
+    build: {
+        outDir: 'dist'
     }
 })

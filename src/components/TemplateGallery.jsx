@@ -16,6 +16,30 @@ const TemplateGallery = ({ onTemplateSelect, onClose }) => {
             setTemplates(data.templates || []);
         } catch (error) {
             console.error('Error loading templates:', error);
+            // Fallback templates
+            setTemplates([
+                {
+                    id: '1',
+                    name: 'Lead Magnet Capture',
+                    category: 'lead-magnet',
+                    description: 'Perfect for capturing emails with free offers',
+                    is_premium: false
+                },
+                {
+                    id: '2',
+                    name: 'Product Sales Page',
+                    category: 'product-sales',
+                    description: 'Sell your products with high-converting pages',
+                    is_premium: false
+                },
+                {
+                    id: '3',
+                    name: 'Webinar Registration',
+                    category: 'webinar',
+                    description: 'Build your email list with webinar signups',
+                    is_premium: false
+                }
+            ]);
         }
     };
 
@@ -24,6 +48,10 @@ const TemplateGallery = ({ onTemplateSelect, onClose }) => {
     const filteredTemplates = selectedCategory === 'all'
         ? templates
         : templates.filter(t => t.category === selectedCategory);
+
+    const getCategoryDisplayName = (category) => {
+        return category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    };
 
     return (
         <div className="modal-overlay">
@@ -60,7 +88,7 @@ const TemplateGallery = ({ onTemplateSelect, onClose }) => {
                                     whiteSpace: 'nowrap'
                                 }}
                             >
-                                {category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                                {getCategoryDisplayName(category)}
                             </button>
                         ))}
                     </div>
@@ -118,7 +146,7 @@ const TemplateGallery = ({ onTemplateSelect, onClose }) => {
                                 </div>
 
                                 <p style={{ fontSize: '12px', color: 'var(--tg-theme-hint-color)', marginBottom: '12px' }}>
-                                    {template.category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} Template
+                                    {getCategoryDisplayName(template.category)} Template
                                 </p>
 
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

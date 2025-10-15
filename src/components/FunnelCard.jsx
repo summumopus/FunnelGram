@@ -16,7 +16,7 @@ const FunnelCard = ({ funnel, onEdit, onPreview, onClone, onDelete }) => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                 <div style={{ flex: 1 }}>
                     <h3 style={{ fontWeight: '600', color: 'var(--tg-theme-text-color)' }}>{funnel.name}</h3>
-                    <p style={{ color: 'var(--tg-theme-hint-color)', fontSize: '12px' }}>{funnel.type}</p>
+                    <p style={{ color: 'var(--tg-theme-hint-color)', fontSize: '12px' }}>{funnel.type || funnel.funnel_type}</p>
                 </div>
                 <span style={{ fontSize: '12px', padding: '4px 8px', borderRadius: '4px' }} className={getStatusColor(funnel.status)}>
                     {funnel.status}
@@ -26,15 +26,15 @@ const FunnelCard = ({ funnel, onEdit, onPreview, onClone, onDelete }) => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginBottom: '12px', fontSize: '12px' }}>
                 <div style={{ background: 'var(--tg-theme-secondary-bg-color)', borderRadius: '8px', padding: '8px' }}>
                     <div style={{ color: 'var(--tg-theme-hint-color)' }}>Leads</div>
-                    <div style={{ fontWeight: '600', color: 'var(--tg-theme-text-color)' }}>{funnel.leads}</div>
+                    <div style={{ fontWeight: '600', color: 'var(--tg-theme-text-color)' }}>{funnel.leads || 0}</div>
                 </div>
                 <div style={{ background: 'var(--tg-theme-secondary-bg-color)', borderRadius: '8px', padding: '8px' }}>
                     <div style={{ color: 'var(--tg-theme-hint-color)' }}>Conv.</div>
-                    <div style={{ fontWeight: '600', color: 'var(--tg-theme-text-color)' }}>{funnel.conversions}</div>
+                    <div style={{ fontWeight: '600', color: 'var(--tg-theme-text-color)' }}>{funnel.conversions || 0}</div>
                 </div>
                 <div style={{ background: 'var(--tg-theme-secondary-bg-color)', borderRadius: '8px', padding: '8px' }}>
                     <div style={{ color: 'var(--tg-theme-hint-color)' }}>Revenue</div>
-                    <div style={{ fontWeight: '600', color: 'var(--tg-theme-text-color)' }}>${funnel.revenue}</div>
+                    <div style={{ fontWeight: '600', color: 'var(--tg-theme-text-color)' }}>${funnel.revenue || 0}</div>
                 </div>
             </div>
 

@@ -14,29 +14,14 @@ const PaymentProcessor = ({ amount, funnelId, onSuccess, onClose }) => {
     const processPayment = async () => {
         setLoading(true);
         try {
-            // In a real app, you would use Stripe Elements or a similar secure method
-            // This is a simplified version for demonstration
-            const response = await fetch('/api/create-payment-intent', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    amount: amount,
-                    funnelId: funnelId,
-                    userId: 'current-user-id' // Would come from auth context
-                })
-            });
+            // Simulate payment processing
+            await new Promise(resolve => setTimeout(resolve, 2000));
 
-            const data = await response.json();
-
-            if (data.success) {
-                // Simulate payment processing
-                setTimeout(() => {
-                    setPaymentSuccess(true);
-                    setTimeout(() => {
-                        onSuccess && onSuccess();
-                    }, 2000);
-                }, 2000);
-            }
+            // In a real app, you would call your Stripe API here
+            setPaymentSuccess(true);
+            setTimeout(() => {
+                onSuccess && onSuccess();
+            }, 2000);
         } catch (error) {
             console.error('Payment error:', error);
         } finally {
