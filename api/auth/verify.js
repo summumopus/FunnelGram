@@ -1,22 +1,4 @@
 import crypto from 'crypto';
-let createClient;
-try {
-    // Importing the supabase client may throw in some restricted runtimes
-    // so we lazily require it and guard against failures.
-    // Use dynamic import to keep bundlers happy.
-    // eslint-disable-next-line global-require
-    createClient = require('@supabase/supabase-js').createClient;
-} catch (e) {
-    console.warn('Warning: @supabase/supabase-js could not be loaded:', e && e.message);
-    createClient = null;
-}
-
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
-    console.warn('Supabase URL or service key missing. Server-side APIs will not function correctly without server credentials.');
-}
 
 // Create a lightweight stub that mimics the interface enough to avoid top-level crashes.
 function makeStubSupabase() {
@@ -37,10 +19,25 @@ function makeStubSupabase() {
 
 export const createServerSupabase = () => {
     try {
-        if (!createClient) {
+        // Read envs at call time so the runtime has a chance to inject them
+        const SUPABASE_URL = process.env.SUPABASE_URL;
+        const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+        if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+            console.warn('Supabase URL or service key missing. Server-side APIs will not function correctly without server credentials.');
             return makeStubSupabase();
         }
-        if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) return makeStubSupabase();
+
+        // Lazily require the supabase client here to avoid any module-import-time side effects.
+        let createClient = null;
+        try {
+            // eslint-disable-next-line global-require
+            createClient = require('@supabase/supabase-js').createClient;
+        } catch (e) {
+            console.warn('Warning: @supabase/supabase-js could not be loaded:', e && e.message);
+            return makeStubSupabase();
+        }
+
         return createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
     } catch (e) {
         console.error('Failed to create Supabase client:', e && e.message);

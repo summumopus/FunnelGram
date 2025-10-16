@@ -1,5 +1,3 @@
-import { createServerSupabase, verifyInitData } from './verify.js';
-
 import { wrap } from '../debugWrapper.js';
 
 async function handler(req, res) {
@@ -7,7 +5,7 @@ async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { createServerSupabase } = await import('./verify.js');
+    const { createServerSupabase, verifyInitData } = await import('./verify.js');
     const supabase = createServerSupabase();
 
     try {

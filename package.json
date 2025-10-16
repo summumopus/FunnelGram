@@ -12,6 +12,7 @@
     "dependencies": {
         "@stripe/stripe-js": "^8.0.0",
         "@supabase/supabase-js": "^2.38.0",
+        "@vercel/speed-insights": "^1.2.0",
         "framer-motion": "^10.16.4",
         "lucide-react": "latest",
         "react": "^18.2.0",

@@ -9,6 +9,7 @@ import PaymentProcessor from './components/PaymentProcessor';
 import CompleteFunnelBuilder from './components/CompleteFunnelBuilder';
 import { Toaster, toast } from 'react-hot-toast';
 import { useApi } from './hooks/useApi';
+import SpeedInsightsWidget from './components/SpeedInsightsWidget';
 
 const AppContent = () => {
     const { tg, user, initData } = useTelegramContext();
@@ -390,6 +391,9 @@ const AppContent = () => {
                     ))}
                 </div>
             </div>
+
+            {/* Performance widget (best-effort) */}
+            <SpeedInsightsWidget />
         </div>
     );
 };
